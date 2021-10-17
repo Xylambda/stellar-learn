@@ -33,6 +33,7 @@ setup(
     install_requires=[
         "numpy",
         "tensorflow",
+        "lightkurve",
         "scikit-learn",
         "matplotlib",
         "xgboost"
