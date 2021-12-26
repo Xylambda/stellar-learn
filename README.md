@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="assets/star.png" width="450">
+</p>
+
+
 # stellar-learn
 
 Stellar classification in Python.
