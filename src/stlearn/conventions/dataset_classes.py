@@ -1,0 +1,14 @@
+
+
+class KeplerQ9:
+    """
+    KeplerQ9 dataset types.
+    """
+    GDOR_SPB = 'GDOR_SPB'
+    ECLIPSE = 'ECLIPSE'
+    RRLYR_CEPHEID = 'RRLYR_CEPHEID'
+    CONSTANT = 'CONSTANT'
+    SOLARLIKE = 'SOLARLIKE'
+    CONTACT_ROT = 'CONTACT_ROT'
+    APERIODIC = 'APERIODIC'
+    DSCT_BCEP = 'DSCT_BCEP'

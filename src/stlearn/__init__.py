@@ -9,7 +9,6 @@ from . import io
 from . import utils
 from . import models
 from . import conventions
-from . import preprocessing
 
 # versioneer
 from ._version import get_versions

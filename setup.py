@@ -31,11 +31,10 @@ setup(
     packages=find_packages(where='src'),
     python_requires='>=3.5, <4',
     install_requires=[
+        "torch>=1.9.0",
         "numpy",
-        "tensorflow",
-        "lightkurve",
-        "scikit-learn",
+        "tsfresh",
         "matplotlib",
-        "xgboost"
+        "scikit-learn",
     ],
 )
