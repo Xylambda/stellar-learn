@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/star.png" width="450">
+  <img src="assets/star.png" width="250">
 </p>
 
 
