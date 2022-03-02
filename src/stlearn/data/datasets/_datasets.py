@@ -11,9 +11,10 @@ from stlearn.conventions import KeplerQ9 as keplerq9_classes
 from stlearn.data.preprocessing import pad_sequences
 
 
-class KeplerQ9(StellarDataset):
+class KeplerBase(StellarDataset):
     """
-    Kepler Q9 dataset.
+    Kepler Q9 base dataset. To create a Kepler dataset one must extend this
+    class.
     """
     TYPES = [
         key for key in keplerq9_classes.__dict__ if not key.startswith('__')
@@ -22,9 +23,9 @@ class KeplerQ9(StellarDataset):
     def __init__(self):
         super().__init__()
 
-        self.__url = 'https://tasoc.dk/pipeline/starclass_trainingsets/keplerq9.zip'
+        self.__url = None
         self.__temp = 'temp'
-        self.__name = 'keplerq9'
+        self.__name = None
         self.__data_collection = None
 
     def _read_single_class(self, path, n_processes: int) -> list:
@@ -112,3 +113,27 @@ class KeplerQ9(StellarDataset):
             return self.__data_collection
         else:
             return self.__data_collection
+
+
+class KeplerQ9(KeplerBase):
+    def __init__(self):
+        super().__init__()
+
+        self.__url = 'https://tasoc.dk/pipeline/starclass_trainingsets/keplerq9.zip'
+        self.__name = 'keplerq9'
+
+
+class KeplerQ9V2(KeplerBase):
+    def __init__(self):
+        super().__init__()
+
+        self.__url = 'https://tasoc.dk/pipeline/starclass_trainingsets/keplerq9v2.zip'
+        self.__name = 'keplerq9v2'
+
+
+class KeplerQ9V3(KeplerBase):
+    def __init__(self):
+        super().__init__()
+
+        self.__url = 'https://tasoc.dk/pipeline/starclass_trainingsets/keplerq9v3.zip'
+        self.__name = 'keplerq9v3'

@@ -29,7 +29,7 @@ class SuperLearner(ModelBase):
         self.model = SuperLearner(folds=n_folds, scorer=scorer)
         self.model.add(RandomForestClassifier())
         self.model.add(LogisticRegression())
-        self.model.add_meta(MLPClassifier)
+        self.model.add_meta(MLPClassifier())
 
     def fit(self, X, y):
         self.model.fit(X, y)
