@@ -14,7 +14,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/Xylambda/stellar-learn',
-    author='aperez',
+    author='Alejandro Pérez-Sanjuán',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
@@ -32,9 +32,11 @@ setup(
     python_requires='>=3.5, <4',
     install_requires=[
         "numpy",
-        "torch",
-        "scikit-learn",
+        "mlens"
+        "astropy",
+        "tsfresh",
+        "lightkurve",
         "matplotlib",
-        "xgboost"
+        "scikit-learn",
     ],
 )
