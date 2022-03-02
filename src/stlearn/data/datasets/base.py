@@ -15,7 +15,7 @@ class StellarDataset:
     """Base class to create datasets.
 
     To create a dataset one must extend this class and fill the appropiate
-    methods.
+    methods and attributes.
     
     """
     def __init__(self):
@@ -24,6 +24,9 @@ class StellarDataset:
         self.__temp = Path('temp')
         self.__data_collection = None
         self.__id_dict = None
+
+        # Filled below
+        self.tsfresh_features = None
 
     def download(self) -> None:
         self.__temp.mkdir(exist_ok=True)
@@ -38,7 +41,7 @@ class StellarDataset:
         """
         Read data from the folder where the dataset is stored.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def get_ids(self, folder: Union[Path, str]) -> Dict[str, List[str]]:
         """
@@ -50,7 +53,7 @@ class StellarDataset:
             Dictionary whose keys are the star type and whose values are a list
             of all ids.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def get_data_collection(self) -> dict:
         """
@@ -73,10 +76,13 @@ class StellarDataset:
         -------
         pandas.DataFrame
         """
-        extracted_features = extract_features(
-            long_format, column_id='id', column_sort='time'
-        )
-        return extracted_features
+        if self.tsfresh_features is None:
+            extracted_features = extract_features(
+                long_format, column_id='id', column_sort='time'
+            )
+            self.tsfresh_features = extracted_features
+
+        return self.tsfresh_features
 
     def pad_collection(
         collection: Dict[str, List[np.ndarray]]
@@ -97,7 +103,14 @@ class StellarDataset:
             Dictionary whose keys are the star type and whose values are
             numpy.array sequences representing the flux.
         """     
-        raise NotImplementedError()
+        raise NotImplementedError
+
+    def as_lightkurve(self, collection: Dict[str, np.ndarray]) -> pd.DataFrame:
+        """
+        Configure the dataset as a dictionary of 'lightkurve.TessLightCurve'
+        objects.
+        """
+        raise NotImplementedError
 
     def as_dataframe(self, collection: Dict[str, np.ndarray]) -> pd.DataFrame:
         """
@@ -109,7 +122,6 @@ class StellarDataset:
 
         df_dict = {}
         for key in collection:
-            
             df_dict[key] = []
             for i, seq in enumerate(collection[key]):
                 df = pd.DataFrame(seq, columns=['time', 'flux', 'flux_error']) # TODO: get from conventions

@@ -1,6 +1,7 @@
 """
 Base class to build models under stellar-learn framework.
 """
+from stlearn import io
 
 
 class ModelBase:
@@ -13,6 +14,7 @@ class ModelBase:
     def __init__(self) -> None:
  
         self.__fitted__ = False
+        self.model = None
 
     def fit(self, X, y):
         """Fit the algorithm.
@@ -26,7 +28,6 @@ class ModelBase:
             Features.
         y : numpy.array
             Labels.
-
         """
         raise NotImplementedError()
 
@@ -34,7 +35,11 @@ class ModelBase:
         raise NotImplementedError()
 
     def save_model(self, path):
-        pass
+        io.save_pickle(obj=self.model, path=path)
 
-    def load_model(self):
-        pass
+    def load_model(self, path):
+        self.model = io.load_pickle(path=path)
+
+    def _check_fitted(self):
+        if not self.__fitted__:
+            return ValueError("Model has not been optimized.")

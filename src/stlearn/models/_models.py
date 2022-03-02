@@ -1,54 +1,40 @@
 """
 Module that contains all models to classify curves.
 """
-from xgboost import XGBClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+
 from stlearn.models.base import ModelBase
+from mlens.ensemble import SuperLearner 
 
 
-class MetaClassifier(ModelBase):
-    def __init__(self) -> None:
-        super(MetaClassifier, self).__init__()
-
-
-class SLOSH(ModelBase):
-    def __init__(self) -> None:
-        super(MetaClassifier, self).__init__()
-
-
-class SortingHatClassifier(ModelBase):
-    def __init__(self) -> None:
-        super(MetaClassifier, self).__init__()
-
-
-class XGBClassifier(ModelBase):
+class SuperLearner(ModelBase):
     """
-    XGBoost classifier
+    Parameters
+    ----------
+    n_folds : int, optional, default: 2
+        Number of folds to use during fitting. Note: this parameter can be
+        specified on a layer-specific basis in the add method.
+    scorer : object, default: None
+        Scoring function. If a function is provided, base estimators will be
+        scored on the training set assembled for fitting the meta estimator.
+        Since those predictions are out-of-sample, the scores represent valid
+        test scores. The scorer should be a function that accepts an array of
+        true values and an array of 
     """
-    def __init__(self) -> None:
-        super(MetaClassifier, self).__init__()
+    def __init__(self, n_folds=2, scorer=None) -> None:
+        super().__init__()(self)
 
-        self.model = XGBClassifier(
-            booster='gbtree',
-            colsample_bytree=0.7,
-            eval_metric='mlogloss',
-            gamma=7.5,
-            learning_rate=0.1,
-            max_depth=6,
-            min_child_weight=1,
-            n_estimators=500,
-            objective='multi:softmax',
-            random_state=self.random_seed,
-            reg_alpha=1e-5,
-            subsample=0.8,
-            use_label_encoder=False,
-            n_jobs=1
-        )
+        self.model = SuperLearner(folds=n_folds, scorer=scorer)
+        self.model.add(RandomForestClassifier())
+        self.model.add(LogisticRegression())
+        self.model.add_meta(MLPClassifier)
 
     def fit(self, X, y):
         self.model.fit(X, y)
-
-        # mark as fitted if everything is ok
         self.__fitted__ = True
 
     def predict_class(self, X):
-        return self.model.predict_proba(X)
+        self._check_fitted()
+        return self.model.predict_class(X)

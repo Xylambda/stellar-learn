@@ -1,7 +1,10 @@
 import os
 import numpy as np
+import lightkurve as lk
 
+from astropy.units import cds
 from multiprocessing import Pool
+from typing import Dict, List
 from stlearn.data.datasets.base import StellarDataset
 from tsfresh.utilities.dataframe_functions import impute
 from stlearn.conventions import KeplerQ9 as keplerq9_classes
@@ -57,6 +60,34 @@ class KeplerQ9(StellarDataset):
             new_collection[ty] = pad_sequences(collection[ty])
             
         return new_collection
+
+    def as_lightkurve(
+        self, collection: Dict[str, np.ndarray]
+    ) -> Dict[str, List]:
+        if self.__id_dict is None:
+            msg = "'get_ids' needs to be called first."
+            raise ValueError(msg)
+
+        lk_dict = {}
+        for key in collection:
+            lk_dict[key] = []
+            for i, seq in enumerate(collection[key]):
+                
+                id = self.__id_dict[key][i].replace('.txt', '')
+
+                lightcurve = lk.TessLightCurve(
+                    time=seq[:, 0],
+                    flux=seq[:, 1],
+                    flux_err=seq[:, 2],
+                    flux_unit=cds.ppm,
+                    time_format='jd',
+                    time_scale='tdb',
+                    targetid=id
+                )
+
+                lk_dict[key].append(lightcurve)
+
+        return lk_dict
 
     def get_ids(self, folder):
         if self.__id_dict is None:
