@@ -2,6 +2,7 @@ import os
 import numpy as np
 import lightkurve as lk
 
+from pathlib import Path
 from astropy.units import cds
 from multiprocessing import Pool
 from typing import Dict, List
@@ -16,17 +17,18 @@ class KeplerBase(StellarDataset):
     Kepler Q9 base dataset. To create a Kepler dataset one must extend this
     class.
     """
+
     TYPES = [
-        key for key in keplerq9_classes.__dict__ if not key.startswith('__')
+        key for key in keplerq9_classes.__dict__ if not key.startswith("__")
     ]
 
     def __init__(self):
         super().__init__()
 
-        self.__url = None
-        self.__temp = 'temp'
-        self.__name = None
-        self.__data_collection = None
+        self._url = None
+        self._temp = Path("temp")
+        self._name = None
+        self._data_collection = None
 
     def _read_single_class(self, path, n_processes: int) -> list:
         """Helper function.
@@ -47,19 +49,19 @@ class KeplerBase(StellarDataset):
         # prepend folder
         _files = os.listdir(path)
         files = [path / x for x in _files]
-        
+
         pool = Pool(n_processes)
         collection = pool.map(np.loadtxt, files)
         pool.close()
         pool.join()
-        
+
         return collection
 
     def pad_collection(self, collection):
-        new_collection = {}      
+        new_collection = {}
         for ty in self.TYPES:
             new_collection[ty] = pad_sequences(collection[ty])
-            
+
         return new_collection
 
     def as_lightkurve(
@@ -73,17 +75,17 @@ class KeplerBase(StellarDataset):
         for key in collection:
             lk_dict[key] = []
             for i, seq in enumerate(collection[key]):
-                
-                id = self.__id_dict[key][i].replace('.txt', '')
+
+                id = self.__id_dict[key][i].replace(".txt", "")
 
                 lightcurve = lk.TessLightCurve(
                     time=seq[:, 0],
                     flux=seq[:, 1],
                     flux_err=seq[:, 2],
                     flux_unit=cds.ppm,
-                    time_format='jd',
-                    time_scale='tdb',
-                    targetid=id
+                    time_format="jd",
+                    time_scale="tdb",
+                    targetid=id,
                 )
 
                 lk_dict[key].append(lightcurve)
@@ -91,21 +93,25 @@ class KeplerBase(StellarDataset):
         return lk_dict
 
     def get_ids(self, folder):
-        if self.__id_dict is None:
+        folder = Path(folder)
+
+        if self._id_dict is None:
             id_dict = {}
             for ty in self.TYPES:
                 id_dict[ty] = os.listdir(folder / ty)
 
             self.__id_dict = id_dict
-            return self.self.__id_dict
+            return self._id_dict
         else:
-            return self.self.__id_dict
+            return self._id_dict
 
     def from_folder(self, folder, n_processes=8):
-        if self.self.__data_collection is None:            
+        folder = Path(folder)
+
+        if self._data_collection is None:
             collection = {}
             for ty in self.TYPES:
-                collection[ty] = self.read_single_class(
+                collection[ty] = self._read_single_class(
                     path=folder / ty, n_processes=n_processes
                 )
 
@@ -119,21 +125,27 @@ class KeplerQ9(KeplerBase):
     def __init__(self):
         super().__init__()
 
-        self.__url = 'https://tasoc.dk/pipeline/starclass_trainingsets/keplerq9.zip'
-        self.__name = 'keplerq9'
+        self._url = (
+            "https://tasoc.dk/pipeline/starclass_trainingsets/keplerq9.zip"
+        )
+        self._name = "keplerq9"
 
 
 class KeplerQ9V2(KeplerBase):
     def __init__(self):
         super().__init__()
 
-        self.__url = 'https://tasoc.dk/pipeline/starclass_trainingsets/keplerq9v2.zip'
-        self.__name = 'keplerq9v2'
+        self._url = (
+            "https://tasoc.dk/pipeline/starclass_trainingsets/keplerq9v2.zip"
+        )
+        self._name = "keplerq9v2"
 
 
 class KeplerQ9V3(KeplerBase):
     def __init__(self):
         super().__init__()
 
-        self.__url = 'https://tasoc.dk/pipeline/starclass_trainingsets/keplerq9v3.zip'
-        self.__name = 'keplerq9v3'
+        self._url = (
+            "https://tasoc.dk/pipeline/starclass_trainingsets/keplerq9v3.zip"
+        )
+        self._name = "keplerq9v3"

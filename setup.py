@@ -32,7 +32,7 @@ setup(
     python_requires='>=3.5, <4',
     install_requires=[
         "numpy",
-        "mlens"
+        "mlens",
         "astropy",
         "tsfresh",
         "lightkurve",

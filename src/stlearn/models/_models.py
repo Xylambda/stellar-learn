@@ -6,7 +6,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 
 from stlearn.models.base import ModelBase
-from mlens.ensemble import SuperLearner 
+from mlens.ensemble import SuperLearner as SPRL
 
 
 class SuperLearner(ModelBase):
@@ -21,12 +21,13 @@ class SuperLearner(ModelBase):
         scored on the training set assembled for fitting the meta estimator.
         Since those predictions are out-of-sample, the scores represent valid
         test scores. The scorer should be a function that accepts an array of
-        true values and an array of 
+        true values and an array of
     """
-    def __init__(self, n_folds=2, scorer=None) -> None:
-        super().__init__()(self)
 
-        self.model = SuperLearner(folds=n_folds, scorer=scorer)
+    def __init__(self, n_folds=2, scorer=None) -> None:
+        super().__init__()
+
+        self.model = SPRL(folds=n_folds, scorer=scorer)
         self.model.add(RandomForestClassifier())
         self.model.add(LogisticRegression())
         self.model.add_meta(MLPClassifier())

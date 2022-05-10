@@ -7,19 +7,20 @@ from stlearn import io
 class ModelBase:
     """Base model class.
 
-    Any model that is to be used in stellar-learn needs to extend this class 
+    Any model that is to be used in stellar-learn needs to extend this class
     and fill the necessary methods.
-    
+
     """
+
     def __init__(self) -> None:
- 
+
         self.__fitted__ = False
         self.model = None
 
     def fit(self, X, y):
         """Fit the algorithm.
 
-        You must specify the features X and labels y to perform the 
+        You must specify the features X and labels y to perform the
         optimization process.
 
         Parameters

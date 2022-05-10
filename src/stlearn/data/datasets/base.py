@@ -16,24 +16,25 @@ class StellarDataset:
 
     To create a dataset one must extend this class and fill the appropiate
     methods and attributes.
-    
+
     """
+
     def __init__(self):
-        self.__url = None
-        self.__name = None
-        self.__temp = Path('temp')
-        self.__data_collection = None
-        self.__id_dict = None
+        self._url = None
+        self._name = None
+        self._temp = Path("temp")
+        self._data_collection = None
+        self._id_dict = None
 
         # Filled below
         self.tsfresh_features = None
 
     def download(self) -> None:
-        self.__temp.mkdir(exist_ok=True)
+        self._temp.mkdir(exist_ok=True)
 
-        with urlopen(self.__url) as zipresp:
+        with urlopen(self._url) as zipresp:
             with ZipFile(BytesIO(zipresp.read())) as zfile:
-                zfile.extractall(self.__temp / self.__name)
+                zfile.extractall(self._temp / self._name)
 
     def from_folder(
         self, folder: Union[Path, str], **kwargs
@@ -57,10 +58,10 @@ class StellarDataset:
 
     def get_data_collection(self) -> dict:
         """
-        Getter method that returns the sequences as a dict where each key is 
+        Getter method that returns the sequences as a dict where each key is
         the star type and each value is a list of all time series.
         """
-        return self.__data_collection
+        return self._data_collection
 
     def as_tsfresh(self, long_format: pd.DataFrame) -> pd.DataFrame:
         """Transform the dataset into tsfresh features.
@@ -78,7 +79,7 @@ class StellarDataset:
         """
         if self.tsfresh_features is None:
             extracted_features = extract_features(
-                long_format, column_id='id', column_sort='time'
+                long_format, column_id="id", column_sort="time"
             )
             self.tsfresh_features = extracted_features
 
@@ -102,7 +103,7 @@ class StellarDataset:
         dict :
             Dictionary whose keys are the star type and whose values are
             numpy.array sequences representing the flux.
-        """     
+        """
         raise NotImplementedError
 
     def as_lightkurve(self, collection: Dict[str, np.ndarray]) -> pd.DataFrame:
@@ -116,7 +117,7 @@ class StellarDataset:
         """
         Configure the dataset as a pandas.DataFrame in long format.
         """
-        if self.__id_dict is None:
+        if self._id_dict is None:
             msg = "'get_ids' needs to be called first."
             raise ValueError(msg)
 
@@ -124,13 +125,15 @@ class StellarDataset:
         for key in collection:
             df_dict[key] = []
             for i, seq in enumerate(collection[key]):
-                df = pd.DataFrame(seq, columns=['time', 'flux', 'flux_error']) # TODO: get from conventions
-                df['id'] = self.__id_dict[key][i].replace('.txt', '')
-                df['type'] = key
-                
+                df = pd.DataFrame(
+                    seq, columns=["time", "flux", "flux_error"]
+                )  # TODO: get from conventions
+                df["id"] = self._id_dict[key][i].replace(".txt", "")
+                df["type"] = key
+
                 df_dict[key].append(df)
-                
+
             df_dict[key] = pd.concat(df_dict[key])
-            
+
         df_long = pd.concat(df_dict.values())
         return df_long

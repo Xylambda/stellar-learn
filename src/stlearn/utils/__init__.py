@@ -9,7 +9,7 @@ from scipy.stats import binned_statistic
 from stlearn.conventions import MAD_TO_SIGNMA
 
 
-def rms_timescale(lc, timescale=3600/86400):
+def rms_timescale(lc, timescale=3600 / 86400):
     """
     Compute robust RMS on specified timescale. Using MAD scaled to RMS.
 
@@ -37,7 +37,11 @@ def rms_timescale(lc, timescale=3600/86400):
 
     time_min = np.nanmin(time)
     time_max = np.nanmax(time)
-    if not np.isfinite(time_min) or not np.isfinite(time_max) or time_max - time_min <= 0:
+    if (
+        not np.isfinite(time_min)
+        or not np.isfinite(time_max)
+        or time_max - time_min <= 0
+    ):
         raise ValueError("Invalid time-vector specified")
 
     # Construct the bin edges seperated by the timescale:
@@ -51,7 +55,9 @@ def rms_timescale(lc, timescale=3600/86400):
     )
 
     # Compute robust RMS value (MAD scaled to RMS)
-    return MAD_TO_SIGNMA * bn.nanmedian(np.abs(flux_bin - bn.nanmedian(flux_bin)))
+    return MAD_TO_SIGNMA * bn.nanmedian(
+        np.abs(flux_bin - bn.nanmedian(flux_bin))
+    )
 
 
 def ptp(lc):
@@ -79,7 +85,7 @@ def ptp(lc):
 
 def get_periods(featdict, nfreqs, time, in_days=True, ignore_harmonics=False):
     """
-    Cuts frequency data down to desired number of frequencies (in uHz) and 
+    Cuts frequency data down to desired number of frequencies (in uHz) and
     optionally transforms them into periods in days.
 
     Parameters
@@ -91,7 +97,7 @@ def get_periods(featdict, nfreqs, time, in_days=True, ignore_harmonics=False):
     in_days : bool, optional
         Return periods in days instead of frequencies in uHz.
     ignore_harmonics : bool, optional
-        Sort frequency table by amplitude (i.e. ignore into harmonic 
+        Sort frequency table by amplitude (i.e. ignore into harmonic
         structure).
 
     Returns
@@ -99,38 +105,40 @@ def get_periods(featdict, nfreqs, time, in_days=True, ignore_harmonics=False):
     periods :
     n_usedfreqs : int
         Number of true periods/frequencies that are used.
-    usedfreqs : 
+    usedfreqs :
         Indices of the used periods/frequencies in the astropy table.
 
     .. codeauthor:: Jeroen Audenaert <jeroen.audenaert@kuleuven.be>
     .. codeauthor:: Rasmus Handberg <rasmush@phys.au.dk>
     """
 
-    tab = featdict['frequencies']
-    tab = tab[~np.isnan(tab['amplitude'])]
+    tab = featdict["frequencies"]
+    tab = tab[~np.isnan(tab["amplitude"])]
 
     if ignore_harmonics:
-        tab.sort('amplitude', reverse=True)
-        selection = tab[:min(len(tab), nfreqs)]
+        tab.sort("amplitude", reverse=True)
+        selection = tab[: min(len(tab), nfreqs)]
     else:
-        selection = tab[tab['harmonic'] == 0][:nfreqs]
+        selection = tab[tab["harmonic"] == 0][:nfreqs]
 
-	periods = selection['frequency'].quantity
-	usedfreqs = selection[['num', 'harmonic']]
+    periods = selection["frequency"].quantity
+    usedfreqs = selection[["num", "harmonic"]]
 
     if in_days:
-        periods = (1/periods).to(a_units.day)
+        periods = (1 / periods).to(a_units.day)
 
     per = (np.max(time) - np.min(time)) * a_units.day
     gap = nfreqs - len(periods)
-    
+
     if gap > 0:
-	    if in_days:
-		    for i in range(gap):
-			    periods = periods.insert(len(periods), per)
-	    else:
-		    for i in range(gap):
-			    periods = periods.insert(len(periods), (1/per).to(a_units.uHz))
+        if in_days:
+            for i in range(gap):
+                periods = periods.insert(len(periods), per)
+        else:
+            for i in range(gap):
+                periods = periods.insert(
+                    len(periods), (1 / per).to(a_units.uHz)
+                )
 
     n_usedfreqs = len(usedfreqs)
 
